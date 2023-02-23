@@ -14,14 +14,10 @@ class ViewController: UIViewController {
     @IBOutlet weak var progressBar: UIProgressView!
     @IBOutlet weak var trueButton: UIButton!
     @IBOutlet weak var falseButton: UIButton!
+    @IBOutlet weak var scoreLabel: UILabel!
     
-    let quiz = [
-        Question(text: "Four + Two is equal to Six.", answer: "True"),
-        Question(text: "Five - Three is greater than One.", answer: "True"),
-        Question(text: "Three + Eight is less than Ten.", answer: "False")
-    ]
     
-    var questionNumber = 0
+    var quizBrain = QuizBrain()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,26 +26,28 @@ class ViewController: UIViewController {
     }
 
     private func updateUI() {
-        questionLabel.text = quiz[questionNumber].text
+        questionLabel.text = quizBrain.getQuestionText()
+        progressBar.progress = quizBrain.getProgress()
+        scoreLabel.text = "Score: \(quizBrain.getScore())"
+        trueButton.backgroundColor = UIColor.clear
+        falseButton.backgroundColor = UIColor.clear
     }
     
     @IBAction func answerButtonAction(_ sender: UIButton) {
         guard let userAnswer = sender.currentTitle else {return}
-        let actualAnswer = quiz[questionNumber].answer
-        
-        if userAnswer == actualAnswer {
-            print("correctooo")
+        let userGotItRight = quizBrain.chekAnswer(userAnswer)
+
+        if userGotItRight {
+            sender.backgroundColor = UIColor.green
         } else {
-            print("incorrecto")
+            sender.backgroundColor = UIColor.red
         }
         
-        if questionNumber + 1 < quiz.count {
-            questionNumber += 1
-        } else {
-            questionNumber = 0
-        }
+        quizBrain.nextQuestion()
         
-        updateUI()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.updateUI()
+        }
     }
     
 }
